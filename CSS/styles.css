@@ -739,12 +739,4 @@ footer {
   }
 }
 
-.leetcode-icon {
-    display: inline-block;
-    width: 24px;
-    height: 24px;
-    background-image: url('path-to-leetcode-icon.png');
-    background-size: contain;
-    background-repeat: no-repeat;
-    vertical-align: middle;
-}
+
