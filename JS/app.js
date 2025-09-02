@@ -1,116 +1,46 @@
-$(document).ready(function () {
-  $("#profile__ripple").ripples({
-    resolution: 512,
-    dropRadius: 10,
+document.addEventListener("DOMContentLoaded", () => {
+  const year = document.getElementById("year");
+  if (year) year.textContent = new Date().getFullYear();
+
+  const tabs = Array.from(document.querySelectorAll(".tab-link"));
+  tabs.forEach((t) =>
+    t.addEventListener("click", (e) => {
+      tabs.forEach((x) => x.classList.remove("active"));
+      e.currentTarget.classList.add("active");
+    })
+  );
+
+  // Smooth scroll for internal links
+  document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+    anchor.addEventListener("click", function (e) {
+      const id = this.getAttribute("href");
+      const el = document.querySelector(id);
+      if (el) {
+        e.preventDefault();
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    });
   });
 
-  const bars = document.querySelectorAll(".progress__bar");
+  // Scroll-spy: highlight active tab while scrolling
+  const sections = ["#about", "#resume", "#projects", "#certs", "#extra", "#contact"].map((id) => document.querySelector(id));
+  const tabById = new Map(tabs.map((t) => [t.getAttribute("href"), t]));
 
-  bars.forEach(function (bar) {
-    // dataset -> To get data attributes from html
-
-    let percentage = bar.dataset.percent;
-    let tooltip = bar.children[0];
-    tooltip.innerText = percentage + "%";
-    bar.style.width = percentage + "%";
-  });
-
-  //Counter
-
-  const counters = document.querySelectorAll(".counter");
-  console.log(counters);
-
-  function runCounter() {
-    counters.forEach((counter) => {
-      counter.innerText = 0;
-      let target = +counter.dataset.count;
-
-      let step = target / 1000;
-
-      let countIt = function () {
-        let displayedCount = +counter.innerText;
-        if (displayedCount < target) {
-          counter.innerText = Math.ceil(displayedCount + step);
-          setTimeout(countIt, 1);
-        } else {
-          counter.innerText = target;
+  const spy = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        const href = `#${entry.target.id}`;
+        const tab = tabById.get(href);
+        if (tab) {
+          if (entry.isIntersecting) {
+            tabs.forEach((x) => x.classList.remove("active"));
+            tab.classList.add("active");
+          }
         }
-      };
-      countIt();
-    });
-  }
-
-  let counterSection = document.querySelector(".counter__section");
-
-  // Intersection Observer object
-  let options = {
-    rootMargin: "0px 0px -100px 0px",
-  };
-
-  let done = 0;
-
-  const sectionObserver = new IntersectionObserver(function (entries) {
-    if (entries[0].isIntersecting && done != 1) {
-      done = 1;
-      runCounter();
-    }
-  }, options);
-
-  sectionObserver.observe(counterSection);
-
-  // Image Filter
-  var $wrapper = $(".portfolio__wrapper");
-
-  //Initialize isotope
-
-  $wrapper.isotope({
-    filter: "*",
-    layoutMode: "masonry",
-    animationOptions: {
-      duration: 750,
-      easing: "linear",
-    },
-  });
-
-  let links = document.querySelectorAll(".tabs a");
-
-  links.forEach((link) => {
-    let selector = link.dataset.filter;
-
-    link.addEventListener("click", function (e) {
-      e.preventDefault(); // To prevent auto scroll to top due to href="#
-
-      $wrapper.isotope({
-        filter: selector,
-        layoutMode: "masonry",
-        animationOptions: {
-          duration: 750,
-          easing: "linear",
-        },
       });
-
-      links.forEach((link) => {
-        link.classList.remove("active");
-      });
-      e.target.classList.add("active");
-    });
-  });
-
-  //Magnify popup
-
-  $(".magnify").magnificPopup({
-    type: "image",
-    gallery: {
-      enabled: true,
     },
-    zoom: {
-      enable: true,
-    },
-  });
+    { rootMargin: "-40% 0px -55% 0px", threshold: [0, 0.5, 1] }
+  );
 
-  // Slider
-  $(".slider").slick({
-    arrows: false,
-    autoplay: true,
-  });
+  sections.forEach((s) => s && spy.observe(s));
 });
